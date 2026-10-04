@@ -1,0 +1,25 @@
+GreenOps architecture
+
+AWS / Demo Resource Data
+        |
+        v
+Resource Monitoring
+        |
+        v
+FastAPI Backend
+        |
+        +------> MySQL
+        |
+        +------> Optimization Engine
+        |
+        +------> Isolation Forest ML
+        |
+        v
+React + Recharts Dashboard
+        |
+        v
+Recommendations / Anomaly Insights
+
+Optional later:
+AWS CloudWatch + Boto3 -> real metrics
+Admin approval -> controlled cloud action
