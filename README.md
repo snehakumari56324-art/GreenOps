@@ -61,7 +61,7 @@ The platform combines a FastAPI backend, MySQL database, React dashboard, and Ma
                                     v
                           +--------------------+
                           | Approval / Reject  |
-                          +--------------------+
+                          +--------------------+ '''
 
 🧩 Project Modules
 1. Resource Monitoring
