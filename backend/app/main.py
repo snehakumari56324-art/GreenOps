@@ -9,6 +9,8 @@ from .kmeans_routes import router as kmeans_router
 from .recommendation_routes import router as recommendation_router
 from .approval_routes import router as approval_router
 from .analytics_routes import router as analytics_router
+from .regression_routes import router as regression_router
+from .data_routes import router as data_router
 
 app = FastAPI(
     title="GreenOps",
@@ -31,6 +33,8 @@ app.include_router(kmeans_router)
 app.include_router(recommendation_router)
 app.include_router(approval_router)
 app.include_router(analytics_router)
+app.include_router(regression_router)
+app.include_router(data_router)
 
 
 

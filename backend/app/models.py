@@ -39,3 +39,58 @@ class Approval(Base):
         DateTime,
         server_default=func.now()
     )
+class HistoricalCloudResource(Base):
+    __tablename__ = "historical_resources"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    resource_id = Column(
+        String(100),
+        nullable=False,
+        index=True
+    )
+
+    resource_type = Column(
+        String(50),
+        nullable=False
+    )
+
+    region = Column(String(50))
+
+    instance_type = Column(String(50))
+
+    status = Column(String(30))
+
+    cpu_utilization = Column(
+        Float,
+        default=0
+    )
+
+    memory_utilization = Column(
+        Float,
+        default=0
+    )
+
+    estimated_cost = Column(
+        Float,
+        default=0
+    )
+
+    carbon_emission = Column(
+        Float,
+        default=0
+    )
+
+    created_at = Column(
+        DateTime,
+        server_default=func.now()
+    )
+
+    snapshot_at = Column(
+        DateTime,
+        server_default=func.now()
+    )

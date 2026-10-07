@@ -1,41 +1,98 @@
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 
-def detect_anomalies(resources):
-    if not resources:
-        return []
 
-    data = [{
-        "resource_id": r.resource_id,
-        "cpu_utilization": r.cpu_utilization or 0,
-        "memory_utilization": r.memory_utilization or 0,
-        "estimated_cost": r.estimated_cost or 0,
-        "carbon_emission": r.carbon_emission or 0
-    } for r in resources]
+def detect_anomalies(
+    historical_resources,
+    current_resources
+):
 
-    df = pd.DataFrame(data)
+    if len(historical_resources) < 10:
+        return {
+            "status": "INSUFFICIENT_DATA",
+            "message": "At least 10 historical records are required."
+        }
 
-    if len(df) < 2:
-        for item in data:
-            item["anomaly"] = 0
-            item["anomaly_score"] = None
-            item["anomaly_label"] = "INSUFFICIENT_DATA"
-        return data
+    if len(current_resources) == 0:
+        return {
+            "status": "NO_CURRENT_DATA",
+            "results": []
+        }
 
-    features = ["cpu_utilization", "memory_utilization", "estimated_cost", "carbon_emission"]
-    contamination = min(0.25, max(1 / len(df), 0.01))
+    historical_data = []
 
-    model = IsolationForest(contamination=contamination, random_state=42)
-    predictions = model.fit_predict(df[features])
-    scores = model.decision_function(df[features])
+    for resource in historical_resources:
+
+        historical_data.append({
+            "cpu_utilization": resource.cpu_utilization or 0,
+            "memory_utilization": resource.memory_utilization or 0,
+            "estimated_cost": resource.estimated_cost or 0,
+            "carbon_emission": resource.carbon_emission or 0
+        })
+
+    historical_df = pd.DataFrame(
+        historical_data
+    )
+
+    features = [
+        "cpu_utilization",
+        "memory_utilization",
+        "estimated_cost",
+        "carbon_emission"
+    ]
+
+    model = IsolationForest(
+        contamination=0.10,
+        random_state=42
+    )
+
+    model.fit(
+        historical_df[features]
+    )
+
+    current_data = []
+
+    for resource in current_resources:
+
+        current_data.append({
+            "resource_id": resource.resource_id,
+            "cpu_utilization": resource.cpu_utilization or 0,
+            "memory_utilization": resource.memory_utilization or 0,
+            "estimated_cost": resource.estimated_cost or 0,
+            "carbon_emission": resource.carbon_emission or 0
+        })
+
+    current_df = pd.DataFrame(
+        current_data
+    )
+
+    predictions = model.predict(
+        current_df[features]
+    )
 
     results = []
-    for i, item in enumerate(data):
-        prediction = int(predictions[i])
+
+    for i, resource in enumerate(current_resources):
+
+        label = (
+            "ANOMALY"
+            if predictions[i] == -1
+            else "NORMAL"
+        )
+
         results.append({
-            **item,
-            "anomaly": prediction,
-            "anomaly_score": round(float(scores[i]), 4),
-            "anomaly_label": "ANOMALY" if prediction == -1 else "NORMAL"
+            "resource_id": resource.resource_id,
+            "anomaly_label": label,
+            "cpu_utilization": resource.cpu_utilization,
+            "memory_utilization": resource.memory_utilization,
+            "estimated_cost": resource.estimated_cost,
+            "carbon_emission": resource.carbon_emission
         })
-    return results
+
+    return {
+        "status": "SUCCESS",
+        "model": "Isolation Forest",
+        "training_records": len(historical_resources),
+        "current_resources": len(current_resources),
+        "results": results
+    }

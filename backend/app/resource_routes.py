@@ -16,7 +16,9 @@ def create_resource(resource: CloudResourceCreate, db: Session = Depends(get_db)
     return {"message": "Resource added successfully", "resource_id": new_resource.resource_id}
 
 @router.get("/")
-def get_resources(db: Session = Depends(get_db)):
+def get_resources(
+    db: Session = Depends(get_db)
+):
     return db.query(CloudResource).all()
 
 @router.get("/summary")

@@ -15,4 +15,8 @@ router = APIRouter(
 def get_clusters(db: Session = Depends(get_db)):
     resources = db.query(CloudResource).all()
 
-    return perform_kmeans(resources)
+    result= perform_kmeans(resources)
+    if isinstance(result, dict) and "clusters" in result:
+        result["clusters"] = result["clusters"][:50]
+
+    return result
